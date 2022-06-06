@@ -20,11 +20,11 @@ for (let i = 0; i < initCandidates.length; i++) {
 }
 
 export const calculateWithSimulate = (values) => {
-  const main = new Calculation(values);
+  const main = new Calculation(values, true);
   let status;
   do {
     status = main.calculate();
-    // console.log(`calculate result -> ${status}`);
+    console.log(`calculate result -> ${status}`);
     if (status === 'uncompleted') {
       const results = main.getResults().filter(result => result.value === 0 && result.candidates.length > 1);
 
@@ -32,7 +32,7 @@ export const calculateWithSimulate = (values) => {
         const simulators = generateSimulators(main.getValues(), result.x, result.y, result.candidates)
         // console.log(`x:${result.x}, y:${result.x}, cadidates:${result.candidates}`);
         if(simulators.some(s => s.getStatus() === 'completed')) {
-          // console.log("find answer");
+          console.log("find answer");
           const answer = simulators.find(s => s.getStatus() === 'completed');
           return ['completed', answer.getValues(), answer.getCandidates()];
         }
@@ -41,7 +41,7 @@ export const calculateWithSimulate = (values) => {
       for (let result of results) {
         const simulators = generateSimulators(main.getValues(), result.x, result.y, result.candidates)
         if(simulators.filter(s => s.getStatus() === 'uncompleted').length === 1) {
-          // console.log("find forward");
+          console.log("find forward");
           const forward = simulators.find(s => s.getStatus() === 'uncompleted');
           main.setValues(forward.getValues());
           find_forward = true
@@ -67,7 +67,8 @@ const generateSimulators = (values, x, y, candidates) => {
 }
 
 class Calculation {
-  constructor(srcValues) {
+  constructor(srcValues, isMain=false) {
+    this.isMain=isMain;
     this.values = JSON.parse(JSON.stringify(srcValues));
     this.resetCandidate();
   }
@@ -103,8 +104,12 @@ class Calculation {
     }
   }
 
+  log(message) {
+    if (this.isMain) console.log(message);
+  }
+
   setValue(x, y, value) {
-    // console.log(`x:${x+1} y:${y+1} -> ${value}`);
+    // this.log(`x:${x+1} y:${y+1} -> ${value}`);
     this.values[y][x] = value;
     this.candidates[y][x] = [];
   }
@@ -124,16 +129,19 @@ class Calculation {
       count += 1;
       desided = false;
       this.resetCandidate();
+      // this.log('desideNumber');
       for (let i = 0; i < RowX; i++) {
         for (let j = 0; j < RowY; j++) {
           if(this.values[j][i] !== 0) continue;
-          else if(this.desideNumber(i, j)) desided = true;
+          if(this.desideNumber(i, j)) desided = true;
         }
       }
       if (!desided) {
+        // this.log('desideFromCandidatesDuplicate');
         desided = this.desideFromCandidatesDuplicate();
       }
       if (!desided) {
+        // this.log('desideFromCandidatesOnlyOne');
         desided = this.desideFromCandidatesOnlyOne();
       }
     } while (desided && count < RowX * RowY);
@@ -178,46 +186,48 @@ class Calculation {
   }
 
   desideFromCandidatesDuplicate() {
+    let result = false;
     // line
-    for (let i = 0; i < RowX; i++) {
+    for (let i = 0; i < RowX && !result; i++) {
       if (this.deleteDuplicateAndDesideOne([i], Array.from(Array(9), (v, k) => k))) {
-        return true;
+        result = true;
       }
     }
 
     // column
-    for (let j = 0; j < RowY; j++) {
+    for (let j = 0; j < RowY && !result; j++) {
       if (this.deleteDuplicateAndDesideOne(Array.from(Array(9), (v, k) => k), [j])) {
-        return true;
+        result = true;
       }
     }
 
     // 3x3 box
-    BoardX.forEach((boardX) => {
-      BoardY.forEach((boardY) => {
+    for(let boardX = 0; boardX < BoardRowX && !result; boardX++) {
+      for(let boardY = 0; boardY < BoardRowY && !result; boardY++) {
         if (this.deleteDuplicateAndDesideOne(
-          Array.from(Array(3), (v, k) => (boardX - 1) * 3 + k),
-          Array.from(Array(3), (v, k) => (boardY - 1) * 3 + k))) {
-          return true;
+          Array.from(Array(3), (v, k) => boardX * 3 + k),
+          Array.from(Array(3), (v, k) => boardY * 3 + k))) {
+            result = true;
         }
-      });
-    });
+      };
+    };
 
-    return false;
+    return result;
   }
 
   desideFromCandidatesOnlyOne() {
+    let result = false;
     // 3x3 box
-    BoardX.forEach((boardX) => {
-      BoardY.forEach((boardY) => {
+    for(let boardX = 0; boardX < BoardRowX && !result; boardX++) {
+      for(let boardY = 0; boardY < BoardRowY && !result; boardY++) {
         if (this.searchOnlyOneAndDeside(
-          Array.from(Array(3), (v, k) => (boardX - 1) * 3 + k),
-          Array.from(Array(3), (v, k) => (boardY - 1) * 3 + k))) {
-          return true;
+          Array.from(Array(3), (v, k) => boardX * 3 + k),
+          Array.from(Array(3), (v, k) => boardY * 3 + k))) {
+          result = true;
         }
-      });
-    });
-    return false;
+      };
+    };
+    return result;
   }
 
   deleteDuplicateAndDesideOne(xRange, yRange) {
