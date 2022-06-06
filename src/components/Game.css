@@ -1,0 +1,115 @@
+body {
+  font: 14px "Century Gothic", Futura, sans-serif;
+  margin: 20px;
+}
+
+ol, ul {
+  padding-left: 30px;
+}
+
+.board-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+.status {
+  margin-bottom: 10px;
+}
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  margin-left: 3px;
+  margin-bottom: 3px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+}
+
+.square-candidate {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 10px;
+  font-weight: thin;
+  line-height: 12px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  margin-left: 3px;
+  margin-bottom: 3px;
+  padding: 0;
+  text-align: center;
+  width: 34px;
+  overflow-wrap: break-word;
+}
+
+
+.selected {
+  background-color: lightblue;
+}
+
+.caliculated {
+  color: darkslateblue;
+}
+
+.square:focus {
+  outline: none;
+}
+
+.kbd-navigation .square:focus {
+  background: #ddd;
+}
+
+.game {
+  display: flex;
+  flex-direction: row;
+}
+
+.game-info {
+  margin-left: 20px;
+}
+
+.game-board {
+  border-right: 3px solid #999;
+}
+
+.board-group {
+  height: 115px;
+  border-bottom: 3px solid #999;
+}
+
+.action {
+  margin: 0 30px 40px 30px;
+}
+
+.action-button {
+  text-align: center;
+  width: 120px;
+  font-size: 32px;
+}
+
+.import-button {
+  float: right;
+  border-style: solid;
+  border-width: 1px;
+  padding: 1px 9px 6px;
+  margin-left: 40px;
+  background-color: rgb(239, 239, 239);
+}
+
+.import-text {
+  font-size: 32px;
+  line-height: 32px;
+  margin: 0;
+}
+
+
